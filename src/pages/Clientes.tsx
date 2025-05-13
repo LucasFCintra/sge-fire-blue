@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { BarcodeScannerIcon, FileDown, PlusCircle, Search } from "lucide-react";
+import { Barcode, FileDown, PlusCircle, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import DataTable from "@/components/DataTable";
@@ -100,7 +100,7 @@ export default function Clientes() {
           <ActionButton startIcon={<PlusCircle />} onClick={() => handleOpenForm()}>
             Novo Cliente
           </ActionButton>
-          <ActionButton startIcon={<BarcodeScannerIcon />} onClick={() => setIsScannerOpen(true)}>
+          <ActionButton startIcon={<Barcode />} onClick={() => setIsScannerOpen(true)}>
             Escanear
           </ActionButton>
           <ActionButton variant="outline" startIcon={<FileDown />} onClick={handleExportData}>

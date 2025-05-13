@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { 
-  Download, FileSpreadsheet, FilePdf, BarChart3, TrendingUp,
+  Download, FileSpreadsheet, FileText, BarChart3, TrendingUp,
   PackageSearch, LineChart, ShoppingCart
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,11 +12,21 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { ReportChart } from "@/components/relatorios/ReportChart";
 
+// Definindo o tipo para Date Range
+interface DateRange {
+  from: Date;
+  to?: Date;
+}
+
 export default function Relatorios() {
   const [activeTab, setActiveTab] = useState("vendas");
-  const [dateRange, setDateRange] = useState({ from: new Date(), to: new Date() });
+  const [dateRange, setDateRange] = useState<DateRange>({ from: new Date(), to: new Date() });
   const [exportFormat, setExportFormat] = useState<"pdf" | "excel">("pdf");
   const { toast } = useToast();
+
+  const handleDateChange = (range: DateRange) => {
+    setDateRange(range);
+  };
 
   const handleExportReport = (reportType: string) => {
     toast({
@@ -32,12 +42,12 @@ export default function Relatorios() {
         <div className="flex flex-col sm:flex-row gap-2">
           <DateRangePicker
             date={dateRange}
-            onChange={setDateRange}
+            onChange={handleDateChange}
           />
           <div className="flex gap-2">
             <ActionButton 
               variant={exportFormat === "pdf" ? "default" : "outline"}
-              startIcon={<FilePdf />}
+              startIcon={<FileText />}
               onClick={() => setExportFormat("pdf")}
             >
               PDF

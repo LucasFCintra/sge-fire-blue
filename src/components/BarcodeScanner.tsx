@@ -1,6 +1,6 @@
 
 import { useState, useEffect, useRef } from "react";
-import { BarcodeScannerIcon, X } from "lucide-react";
+import { Barcode, X } from "lucide-react";
 import { 
   Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle 
 } from "@/components/ui/dialog";
@@ -51,7 +51,7 @@ export function BarcodeScanner({ isOpen, onClose, onScan }: BarcodeScannerProps)
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <BarcodeScannerIcon className="w-5 h-5" />
+            <Barcode className="w-5 h-5" />
             Leitor de Código de Barras
           </DialogTitle>
           <DialogDescription>
@@ -77,7 +77,7 @@ export function BarcodeScanner({ isOpen, onClose, onScan }: BarcodeScannerProps)
           
           <div className="border rounded-md p-6 flex items-center justify-center">
             <div className="text-center space-y-4">
-              <BarcodeScannerIcon className="w-12 h-12 mx-auto text-primary animate-pulse" />
+              <Barcode className="w-12 h-12 mx-auto text-primary animate-pulse" />
               <p className="text-muted-foreground">
                 Aguardando leitura do código de barras...
               </p>

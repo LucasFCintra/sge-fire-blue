@@ -25,6 +25,7 @@ import {
   ChevronsRight,
   MoreHorizontal,
   Search,
+  Loader2,
 } from "lucide-react";
 
 interface DataTableProps<T> {
@@ -41,6 +42,7 @@ interface DataTableProps<T> {
   onRowClick?: (row: T) => void;
   searchable?: boolean;
   pagination?: boolean;
+  isLoading?: boolean;
 }
 
 export default function DataTable<T>({
@@ -50,6 +52,7 @@ export default function DataTable<T>({
   onRowClick,
   searchable = true,
   pagination = true,
+  isLoading = false,
 }: DataTableProps<T>) {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -72,6 +75,15 @@ export default function DataTable<T>({
     : filteredData;
 
   const totalPages = pagination ? Math.ceil(filteredData.length / pageSize) : 1;
+
+  if (isLoading) {
+    return (
+      <div className="w-full flex items-center justify-center py-8">
+        <Loader2 className="w-8 h-8 text-primary animate-spin" />
+        <span className="ml-2 text-muted-foreground">Carregando...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">

@@ -11,15 +11,17 @@ import { OrdemForm } from "@/components/ordens/OrdemForm";
 import { useToast } from "@/hooks/use-toast";
 import { useOrdens } from "@/hooks/use-ordens";
 
+type OrdemTab = "vendas" | "compras";
+
 export default function Ordens() {
-  const [activeTab, setActiveTab] = useState("vendas");
+  const [activeTab, setActiveTab] = useState<OrdemTab>("vendas");
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedOrdem, setSelectedOrdem] = useState<any>(null);
   const { toast } = useToast();
   const { ordensVenda, ordensCompra, isLoading, error } = useOrdens();
 
-  const handleOpenForm = (ordem = null, tipo = activeTab) => {
+  const handleOpenForm = (ordem = null, tipo: OrdemTab = activeTab) => {
     setSelectedOrdem(ordem);
     setIsFormOpen(true);
   };
@@ -217,7 +219,7 @@ export default function Ordens() {
         </div>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
+      <Tabs value={activeTab} onValueChange={(value: OrdemTab) => setActiveTab(value)}>
         <TabsList className="grid grid-cols-2 w-full max-w-md">
           <TabsTrigger value="vendas">
             <ShoppingCart className="w-4 h-4 mr-2" />
