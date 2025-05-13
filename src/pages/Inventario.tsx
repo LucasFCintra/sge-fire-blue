@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Package, FileText, Download, Upload, Filter } from "lucide-react";
+import { Package, FileText, Download, Upload, Filter, Edit, Trash2, Plus, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -13,6 +13,9 @@ import {
 import DataTable from "@/components/DataTable";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { ActionButton } from "@/components/ActionButton";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { toast } from "@/components/ui/sonner";
 
 // Dados fictícios para a tabela de inventário
 const inventarioData = [
@@ -90,7 +93,81 @@ const inventarioData = [
 
 export default function Inventario() {
   const [searchQuery, setSearchQuery] = useState("");
-  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedRow, setSelectedRow] = useState<any>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isAjusteDialogOpen, setIsAjusteDialogOpen] = useState(false);
+  const [filteredData, setFilteredData] = useState(inventarioData);
+  
+  // Função para lidar com a pesquisa
+  const handleSearch = () => {
+    setIsLoading(true);
+    
+    // Simulação de um atraso de carregamento
+    setTimeout(() => {
+      const filtered = inventarioData.filter(item =>
+        item.produto.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.sku.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setFilteredData(filtered);
+      setIsLoading(false);
+      
+      toast.success(`${filtered.length} item(s) encontrado(s)`);
+    }, 500);
+  };
+  
+  // Função para lidar com a adição de um novo item
+  const handleAddItem = () => {
+    toast.info("Funcionalidade de adicionar item será implementada");
+  };
+  
+  // Função para lidar com a exportação
+  const handleExport = (format: string) => {
+    setIsLoading(true);
+    
+    // Simulação de um atraso de carregamento
+    setTimeout(() => {
+      setIsLoading(false);
+      toast.success(`Dados exportados com sucesso em formato ${format}`);
+    }, 1000);
+  };
+  
+  // Função para lidar com a exclusão de um item
+  const handleDelete = () => {
+    setIsLoading(true);
+    
+    // Simulação de um atraso de carregamento
+    setTimeout(() => {
+      setIsLoading(false);
+      setIsDeleteDialogOpen(false);
+      toast.success(`Item ${selectedRow.produto} removido com sucesso`);
+    }, 1000);
+  };
+  
+  // Função para lidar com a edição de um item
+  const handleEdit = () => {
+    setIsLoading(true);
+    
+    // Simulação de um atraso de carregamento
+    setTimeout(() => {
+      setIsLoading(false);
+      setIsEditDialogOpen(false);
+      toast.success(`Item ${selectedRow.produto} atualizado com sucesso`);
+    }, 1000);
+  };
+  
+  // Função para lidar com o ajuste de estoque
+  const handleAjusteEstoque = () => {
+    setIsLoading(true);
+    
+    // Simulação de um atraso de carregamento
+    setTimeout(() => {
+      setIsLoading(false);
+      setIsAjusteDialogOpen(false);
+      toast.success(`Estoque do item ${selectedRow.produto} ajustado com sucesso`);
+    }, 1000);
+  };
   
   // Colunas para a tabela de inventário
   const columns = [
@@ -137,28 +214,29 @@ export default function Inventario() {
     {
       label: "Visualizar Detalhes",
       onClick: (row: any) => {
-        toast({
-          title: "Visualizando produto",
-          description: `Detalhes do produto: ${row.produto}`,
-        });
+        setSelectedRow(row);
+        toast.info(`Visualizando detalhes do produto: ${row.produto}`);
       },
     },
     {
       label: "Editar",
       onClick: (row: any) => {
-        toast({
-          title: "Editando produto",
-          description: `Editando: ${row.produto}`,
-        });
+        setSelectedRow(row);
+        setIsEditDialogOpen(true);
       },
     },
     {
       label: "Ajustar Estoque",
       onClick: (row: any) => {
-        toast({
-          title: "Ajustando estoque",
-          description: `Ajustando estoque de: ${row.produto}`,
-        });
+        setSelectedRow(row);
+        setIsAjusteDialogOpen(true);
+      },
+    },
+    {
+      label: "Excluir",
+      onClick: (row: any) => {
+        setSelectedRow(row);
+        setIsDeleteDialogOpen(true);
       },
     },
   ];
@@ -169,10 +247,34 @@ export default function Inventario() {
         <h1 className="text-3xl font-bold tracking-tight">Inventário</h1>
         
         <div className="flex items-center gap-4">
-          <Button variant="outline" size="sm">
-            <Filter className="w-4 h-4 mr-2" />
+          <div className="flex gap-2">
+            <Input
+              placeholder="Buscar produto ou SKU..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-64"
+              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+            />
+            <ActionButton 
+              onClick={handleSearch} 
+              isLoading={isLoading} 
+              loadingText="Buscando..." 
+              size="sm"
+              startIcon={<Search className="h-4 w-4" />}
+            >
+              Buscar
+            </ActionButton>
+          </div>
+          
+          <ActionButton
+            variant="outline" 
+            size="sm"
+            startIcon={<Filter className="h-4 w-4" />}
+            onClick={() => toast.info("Filtros serão implementados")}
+          >
             Filtros
-          </Button>
+          </ActionButton>
+          
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm">
@@ -181,24 +283,28 @@ export default function Inventario() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleExport("excel")}>
                 <Download className="w-4 h-4 mr-2" />
                 Excel
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleExport("pdf")}>
                 <Download className="w-4 h-4 mr-2" />
                 PDF
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleExport("csv")}>
                 <Download className="w-4 h-4 mr-2" />
                 CSV
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button size="sm">
-            <Package className="w-4 h-4 mr-2" />
+          
+          <ActionButton
+            size="sm"
+            startIcon={<Plus className="h-4 w-4" />}
+            onClick={handleAddItem}
+          >
             Novo Item
-          </Button>
+          </ActionButton>
         </div>
       </div>
       
@@ -230,15 +336,47 @@ export default function Inventario() {
       </div>
       
       <DataTable
-        data={inventarioData}
+        data={filteredData}
         columns={columns}
         actions={actions}
         onRowClick={(row) => {
-          toast({
-            title: "Selecionado",
-            description: `Produto: ${row.produto}`,
-          });
+          setSelectedRow(row);
+          toast.info(`Selecionado: ${row.produto}`);
         }}
+      />
+      
+      {/* Dialog de confirmação de exclusão */}
+      <ConfirmDialog
+        isOpen={isDeleteDialogOpen}
+        onClose={() => setIsDeleteDialogOpen(false)}
+        onConfirm={handleDelete}
+        title="Confirmar exclusão"
+        description={`Tem certeza que deseja excluir o produto "${selectedRow?.produto}"? Esta ação não pode ser desfeita.`}
+        confirmText="Excluir"
+        cancelText="Cancelar"
+        variant="destructive"
+      />
+      
+      {/* Dialog de edição (simplificado) */}
+      <ConfirmDialog
+        isOpen={isEditDialogOpen}
+        onClose={() => setIsEditDialogOpen(false)}
+        onConfirm={handleEdit}
+        title="Salvar alterações"
+        description={`Confirma a edição do produto "${selectedRow?.produto}"?`}
+        confirmText="Salvar"
+        cancelText="Cancelar"
+      />
+      
+      {/* Dialog de ajuste de estoque (simplificado) */}
+      <ConfirmDialog
+        isOpen={isAjusteDialogOpen}
+        onClose={() => setIsAjusteDialogOpen(false)}
+        onConfirm={handleAjusteEstoque}
+        title="Ajustar estoque"
+        description={`Confirma o ajuste de estoque para o produto "${selectedRow?.produto}"?`}
+        confirmText="Confirmar"
+        cancelText="Cancelar"
       />
     </div>
   );
