@@ -70,7 +70,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Buscar perfil do usuário
   const fetchProfile = async (userId: string) => {
     try {
-      // Use type assertion to bypass TypeScript checking
       const { data, error } = await (supabase
         .from('profiles') as any)
         .select('*')
@@ -223,3 +222,4 @@ export const useAuth = () => {
   }
   return context;
 };
+

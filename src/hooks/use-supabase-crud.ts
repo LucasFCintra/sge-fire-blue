@@ -253,3 +253,4 @@ export const useVendas = () => useSupabaseCrud('vendas');
 export const useVendasItens = () => useSupabaseCrud('vendas_itens');
 export const useMovimentacoesEstoque = () => useSupabaseCrud('movimentacoes_estoque');
 export const useConfiguracoes = () => useSupabaseCrud('configuracoes');
+
