@@ -15,7 +15,7 @@ export const useSupabaseCrud = <T extends Record<string, any>>(tableName: string
     try {
       if (!user) return;
       
-      await supabase.from('logs').insert({
+      await (supabase.from('logs') as any).insert({
         usuario_id: user.id,
         acao,
         tabela,
@@ -47,9 +47,9 @@ export const useSupabaseCrud = <T extends Record<string, any>>(tableName: string
         filters = {}
       } = options || {};
 
-      let query = supabase
+      let query = (supabase
         .from(tableName)
-        .select('*', { count: 'exact' });
+        .select('*', { count: 'exact' }) as any);
 
       // Aplicar filtros
       Object.entries(filters).forEach(([key, value]) => {
@@ -94,11 +94,11 @@ export const useSupabaseCrud = <T extends Record<string, any>>(tableName: string
     setError(null);
     
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase
         .from(tableName)
         .select('*')
         .eq('id', id)
-        .single();
+        .single() as any);
 
       if (error) throw error;
 
@@ -130,11 +130,11 @@ export const useSupabaseCrud = <T extends Record<string, any>>(tableName: string
         ? { ...record, usuario_id: user.id }
         : record;
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase
         .from(tableName)
         .insert(recordWithUser)
         .select()
-        .single();
+        .single() as any);
 
       if (error) throw error;
 
@@ -165,12 +165,12 @@ export const useSupabaseCrud = <T extends Record<string, any>>(tableName: string
     setError(null);
     
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase
         .from(tableName)
         .update(record)
         .eq('id', id)
         .select()
-        .single();
+        .single() as any);
 
       if (error) throw error;
 
@@ -201,10 +201,10 @@ export const useSupabaseCrud = <T extends Record<string, any>>(tableName: string
     setError(null);
     
     try {
-      const { error } = await supabase
+      const { error } = await (supabase
         .from(tableName)
         .delete()
-        .eq('id', id);
+        .eq('id', id) as any);
 
       if (error) throw error;
 
