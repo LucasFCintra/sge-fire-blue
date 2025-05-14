@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { 
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow 
@@ -13,7 +12,7 @@ import {
 import { useProdutos, useGrupos, useSubgrupos, useSubSubgrupos } from "@/hooks/use-supabase-crud";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Loader2, Plus, Pencil, Trash2, Search, BarcodeIcon } from "lucide-react";
-import BarcodeScanner from "@/components/BarcodeScanner";
+import { BarcodeScanner } from "@/components/BarcodeScanner";
 
 export default function Produtos() {
   // Estados para produtos
