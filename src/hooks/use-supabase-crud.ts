@@ -48,8 +48,8 @@ export const useSupabaseCrud = <T extends Record<string, any>>(tableName: string
       } = options || {};
 
       let query = (supabase
-        .from(tableName)
-        .select('*', { count: 'exact' }) as any);
+        .from(tableName) as any)
+        .select('*', { count: 'exact' });
 
       // Aplicar filtros
       Object.entries(filters).forEach(([key, value]) => {
@@ -95,10 +95,10 @@ export const useSupabaseCrud = <T extends Record<string, any>>(tableName: string
     
     try {
       const { data, error } = await (supabase
-        .from(tableName)
+        .from(tableName) as any)
         .select('*')
         .eq('id', id)
-        .single() as any);
+        .single();
 
       if (error) throw error;
 
@@ -131,10 +131,10 @@ export const useSupabaseCrud = <T extends Record<string, any>>(tableName: string
         : record;
 
       const { data, error } = await (supabase
-        .from(tableName)
+        .from(tableName) as any)
         .insert(recordWithUser)
         .select()
-        .single() as any);
+        .single();
 
       if (error) throw error;
 
@@ -166,11 +166,11 @@ export const useSupabaseCrud = <T extends Record<string, any>>(tableName: string
     
     try {
       const { data, error } = await (supabase
-        .from(tableName)
+        .from(tableName) as any)
         .update(record)
         .eq('id', id)
         .select()
-        .single() as any);
+        .single();
 
       if (error) throw error;
 
@@ -202,9 +202,9 @@ export const useSupabaseCrud = <T extends Record<string, any>>(tableName: string
     
     try {
       const { error } = await (supabase
-        .from(tableName)
+        .from(tableName) as any)
         .delete()
-        .eq('id', id) as any);
+        .eq('id', id);
 
       if (error) throw error;
 
