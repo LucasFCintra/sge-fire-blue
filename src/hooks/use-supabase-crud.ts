@@ -15,6 +15,7 @@ export const useSupabaseCrud = <T extends Record<string, any>>(tableName: string
     try {
       if (!user) return;
       
+      // Using type assertion to bypass TypeScript type checking
       await (supabase.from('logs') as any).insert({
         usuario_id: user.id,
         acao,
@@ -47,6 +48,7 @@ export const useSupabaseCrud = <T extends Record<string, any>>(tableName: string
         filters = {}
       } = options || {};
 
+      // Using type assertion to bypass TypeScript type checking
       let query = (supabase
         .from(tableName) as any)
         .select('*', { count: 'exact' });
@@ -94,6 +96,7 @@ export const useSupabaseCrud = <T extends Record<string, any>>(tableName: string
     setError(null);
     
     try {
+      // Using type assertion to bypass TypeScript type checking
       const { data, error } = await (supabase
         .from(tableName) as any)
         .select('*')
@@ -130,6 +133,7 @@ export const useSupabaseCrud = <T extends Record<string, any>>(tableName: string
         ? { ...record, usuario_id: user.id }
         : record;
 
+      // Using type assertion to bypass TypeScript type checking
       const { data, error } = await (supabase
         .from(tableName) as any)
         .insert(recordWithUser)
@@ -165,6 +169,7 @@ export const useSupabaseCrud = <T extends Record<string, any>>(tableName: string
     setError(null);
     
     try {
+      // Using type assertion to bypass TypeScript type checking
       const { data, error } = await (supabase
         .from(tableName) as any)
         .update(record)
@@ -201,6 +206,7 @@ export const useSupabaseCrud = <T extends Record<string, any>>(tableName: string
     setError(null);
     
     try {
+      // Using type assertion to bypass TypeScript type checking
       const { error } = await (supabase
         .from(tableName) as any)
         .delete()
@@ -253,4 +259,3 @@ export const useVendas = () => useSupabaseCrud('vendas');
 export const useVendasItens = () => useSupabaseCrud('vendas_itens');
 export const useMovimentacoesEstoque = () => useSupabaseCrud('movimentacoes_estoque');
 export const useConfiguracoes = () => useSupabaseCrud('configuracoes');
-

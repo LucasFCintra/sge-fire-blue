@@ -70,6 +70,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Buscar perfil do usuário
   const fetchProfile = async (userId: string) => {
     try {
+      // Using type assertion to bypass TypeScript type checking
       const { data, error } = await (supabase
         .from('profiles') as any)
         .select('*')
@@ -89,6 +90,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Registrar ações do usuário
   const registerUserAction = async (acao: string, userId?: string) => {
     try {
+      // Using type assertion to bypass TypeScript type checking
       const { error } = await (supabase.from('logs') as any).insert({
         usuario_id: userId || user?.id,
         acao,
@@ -141,6 +143,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       if (!error && data.user) {
         // Criar perfil do usuário
+        // Using type assertion to bypass TypeScript type checking
         const { error: profileError } = await (supabase.from('profiles') as any).insert({
           id: data.user.id,
           nome,
@@ -222,4 +225,3 @@ export const useAuth = () => {
   }
   return context;
 };
-
