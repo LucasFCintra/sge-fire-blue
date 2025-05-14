@@ -70,9 +70,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Buscar perfil do usuário
   const fetchProfile = async (userId: string) => {
     try {
-      // Using type assertion to bypass TypeScript type checking
-      const { data, error } = await (supabase
-        .from('profiles') as any)
+      // Cast the entire supabase client to any to bypass TypeScript type checking
+      const supabaseAny = supabase as any;
+      const { data, error } = await supabaseAny
+        .from('profiles')
         .select('*')
         .eq('id', userId)
         .single();
@@ -90,8 +91,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Registrar ações do usuário
   const registerUserAction = async (acao: string, userId?: string) => {
     try {
-      // Using type assertion to bypass TypeScript type checking
-      const { error } = await (supabase.from('logs') as any).insert({
+      // Cast the entire supabase client to any to bypass TypeScript type checking
+      const supabaseAny = supabase as any;
+      const { error } = await supabaseAny.from('logs').insert({
         usuario_id: userId || user?.id,
         acao,
         ip: 'cliente-web'
@@ -143,15 +145,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       if (!error && data.user) {
         // Criar perfil do usuário
-        // Using type assertion to bypass TypeScript type checking
-        const { error: profileError } = await (supabase.from('profiles') as any).insert({
+        // Cast the entire supabase client to any to bypass TypeScript type checking
+        const supabaseAny = supabase as any;
+        const { error: profileError } = await supabaseAny.from('profiles').insert({
           id: data.user.id,
           nome,
           email
         });
 
         // Definir role padrão
-        await (supabase.from('user_roles') as any).insert({
+        await supabaseAny.from('user_roles').insert({
           user_id: data.user.id,
           role: 'operador'
         });

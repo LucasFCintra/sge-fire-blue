@@ -9,14 +9,16 @@ export const useSupabaseCrud = <T extends Record<string, any>>(tableName: string
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
+  
+  // Cast supabase to any to bypass type checking
+  const supabaseAny = supabase as any;
 
   // Registra ação no log
   const logAction = async (acao: string, tabela: string, registroId?: string, detalhes?: any) => {
     try {
       if (!user) return;
       
-      // Using type assertion to bypass TypeScript type checking
-      await (supabase.from('logs') as any).insert({
+      await supabaseAny.from('logs').insert({
         usuario_id: user.id,
         acao,
         tabela,
@@ -48,9 +50,8 @@ export const useSupabaseCrud = <T extends Record<string, any>>(tableName: string
         filters = {}
       } = options || {};
 
-      // Using type assertion to bypass TypeScript type checking
-      let query = (supabase
-        .from(tableName) as any)
+      let query = supabaseAny
+        .from(tableName)
         .select('*', { count: 'exact' });
 
       // Aplicar filtros
@@ -96,9 +97,8 @@ export const useSupabaseCrud = <T extends Record<string, any>>(tableName: string
     setError(null);
     
     try {
-      // Using type assertion to bypass TypeScript type checking
-      const { data, error } = await (supabase
-        .from(tableName) as any)
+      const { data, error } = await supabaseAny
+        .from(tableName)
         .select('*')
         .eq('id', id)
         .single();
@@ -133,9 +133,8 @@ export const useSupabaseCrud = <T extends Record<string, any>>(tableName: string
         ? { ...record, usuario_id: user.id }
         : record;
 
-      // Using type assertion to bypass TypeScript type checking
-      const { data, error } = await (supabase
-        .from(tableName) as any)
+      const { data, error } = await supabaseAny
+        .from(tableName)
         .insert(recordWithUser)
         .select()
         .single();
@@ -169,9 +168,8 @@ export const useSupabaseCrud = <T extends Record<string, any>>(tableName: string
     setError(null);
     
     try {
-      // Using type assertion to bypass TypeScript type checking
-      const { data, error } = await (supabase
-        .from(tableName) as any)
+      const { data, error } = await supabaseAny
+        .from(tableName)
         .update(record)
         .eq('id', id)
         .select()
@@ -206,9 +204,8 @@ export const useSupabaseCrud = <T extends Record<string, any>>(tableName: string
     setError(null);
     
     try {
-      // Using type assertion to bypass TypeScript type checking
-      const { error } = await (supabase
-        .from(tableName) as any)
+      const { error } = await supabaseAny
+        .from(tableName)
         .delete()
         .eq('id', id);
 
