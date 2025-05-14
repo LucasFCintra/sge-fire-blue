@@ -620,24 +620,11 @@ export default function Produtos() {
       />
 
       {/* Modal do Scanner de Código de Barras */}
-      <Dialog open={isScannerOpen} onOpenChange={setIsScannerOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Escanear Código de Barras</DialogTitle>
-          </DialogHeader>
-          <div className="flex flex-col items-center justify-center space-y-4">
-            <BarcodeScanner onDetected={handleBarcodeDetected} />
-            <p className="text-sm text-muted-foreground">
-              Posicione o código de barras na frente da câmera para leitura automática.
-            </p>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsScannerOpen(false)}>
-              Cancelar
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <BarcodeScanner 
+        isOpen={isScannerOpen} 
+        onClose={() => setIsScannerOpen(false)}
+        onScan={handleBarcodeDetected}
+      />
     </div>
   );
 }
