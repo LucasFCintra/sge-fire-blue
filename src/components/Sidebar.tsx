@@ -48,8 +48,18 @@ const NavItem = ({ to, icon: Icon, label, end, open }: NavItemProps) => {
         )
       }
     >
-      <Icon className={cn("flex-shrink-0 h-5 w-5", !open && "mx-auto")} />
-      {open && <span className="transition-opacity duration-200 whitespace-nowrap sidebar-item-text">{label}</span>}
+      {({ isActive }) => (
+        <>
+          <Icon 
+            className={cn(
+              "flex-shrink-0 h-5 w-5", 
+              !open && "mx-auto",
+              !open && isActive && "text-white"
+            )} 
+          />
+          {open && <span className="transition-opacity duration-200 whitespace-nowrap sidebar-item-text">{label}</span>}
+        </>
+      )}
     </NavLink>
   );
 
@@ -83,7 +93,7 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-20 flex flex-col w-64 bg-sidebar border-r border-gray-200 md:relative transition-all duration-300 ease-in-out",
+          "fixed inset-y-0 left-0 z-20 flex flex-col w-64 bg-sidebar border-r border-gray-200 h-screen transition-all duration-300 ease-in-out",
           open ? "translate-x-0" : "-translate-x-full md:translate-x-0 md:w-16"
         )}
       >

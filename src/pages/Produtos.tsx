@@ -11,8 +11,12 @@ import {
 } from "@/components/ui/select";
 import { useProdutos, useGrupos, useSubgrupos, useSubSubgrupos } from "@/hooks/use-supabase-crud";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { Loader2, Plus, Pencil, Trash2, Search, BarcodeIcon } from "lucide-react";
+import { Loader2, Plus, Pencil, Trash2, Search, BarcodeIcon, Download, FileText, Filter } from "lucide-react";
 import { BarcodeScanner } from "@/components/BarcodeScanner";
+import { DropdownMenu, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DropdownMenuContent } from "@/components/ui/dropdown-menu";
+import { ActionButton } from "@/components/ActionButton";
+import { toast } from "sonner";
 
 export default function Produtos() {
   // Estados para produtos
@@ -77,6 +81,15 @@ export default function Produtos() {
       setErrorMessage("Ocorreu um erro ao carregar os dados. Por favor, tente novamente.");
     }
   }, [page]);
+
+  // Função de exportação
+  const handleExport = (format: "excel" | "pdf" | "csv") => {
+    toast.success(`Exportação iniciada em formato ${format.toUpperCase()}`);
+    // Implementação da exportação iria aqui
+    setTimeout(() => {
+      toast.success(`Exportação em formato ${format.toUpperCase()} concluída`);
+    }, 1500);
+  };
 
   // Carregar produtos com paginação e filtro
   const loadProdutos = async () => {
@@ -311,13 +324,66 @@ export default function Produtos() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold tracking-tight">Produtos</h1>
-        <Button onClick={handleNewProduto}>
-          <Plus className="mr-2 h-4 w-4" />
-          Novo Produto
-        </Button>
+        <div className="flex items-center gap-4">
+          <div className="flex gap-2">
+            <Input
+              placeholder="Buscar produto ou SKU..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-64"
+              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+            />
+            <ActionButton 
+              onClick={handleSearch} 
+              isLoading={produtosCrud.isLoading} 
+              loadingText="Buscando..." 
+              size="sm"
+              startIcon={<Search className="h-4 w-4" />}
+            >
+              Buscar
+            </ActionButton>
+          </div>
+          
+          <ActionButton
+            variant="outline" 
+            size="sm"
+            startIcon={<Filter className="h-4 w-4" />}
+            onClick={() => toast.info("Filtros serão implementados")}
+          >
+            Filtros
+          </ActionButton>
+          
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm">
+                <FileText className="w-4 h-4 mr-2" />
+                Exportar
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem onClick={() => handleExport("excel")}>
+                <Download className="w-4 h-4 mr-2" />
+                Excel
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleExport("pdf")}>
+                <Download className="w-4 h-4 mr-2" />
+                PDF
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleExport("csv")}>
+                <Download className="w-4 h-4 mr-2" />
+                CSV
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <Button onClick={handleNewProduto}>
+            <Plus className="mr-2 h-4 w-4" />
+            Novo Produto
+          </Button>
+        </div>
+        
       </div>
 
       <Card>

@@ -1,4 +1,3 @@
-
 import { Menu, Bell, Search, Settings, LogOut } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -33,7 +32,7 @@ export default function Header({ sidebarOpen, setSidebarOpen }: HeaderProps) {
   };
 
   return (
-    <header className="bg-white border-b border-gray-200 p-4 flex items-center justify-between">
+    <header className="bg-white border-b border-gray-200 p-4 flex items-center justify-between sticky top-0 z-10 shadow-sm">
       <div className="flex items-center gap-x-4">
         <Button
           variant="ghost"

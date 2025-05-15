@@ -1,4 +1,3 @@
-
 import { cn } from "@/lib/utils";
 import { 
   Card, 
@@ -6,6 +5,7 @@ import {
   CardHeader, 
   CardTitle 
 } from "@/components/ui/card";
+import { useState, useEffect } from "react";
 
 interface StatusCardProps {
   title: string;
@@ -17,6 +17,48 @@ interface StatusCardProps {
     positive: boolean;
   };
   className?: string;
+  animated?: boolean;
+}
+
+// Componente de contador animado
+function AnimatedCounter({ endValue, duration = 1500 }) {
+  const [count, setCount] = useState(0);
+  
+  useEffect(() => {
+    // Se o valor final não for um número, não animamos
+    if (isNaN(Number(endValue))) {
+      return;
+    }
+    
+    let startTime;
+    let animationFrame;
+    
+    const updateCount = (timestamp) => {
+      if (!startTime) startTime = timestamp;
+      const progress = timestamp - startTime;
+      
+      if (progress < duration) {
+        const newCount = Math.floor((progress / duration) * Number(endValue));
+        setCount(newCount);
+        animationFrame = requestAnimationFrame(updateCount);
+      } else {
+        setCount(Number(endValue));
+      }
+    };
+    
+    animationFrame = requestAnimationFrame(updateCount);
+    
+    return () => {
+      cancelAnimationFrame(animationFrame);
+    };
+  }, [endValue, duration]);
+  
+  // Se o valor não for um número simples, retornamos o original
+  if (isNaN(Number(endValue)) || typeof endValue === 'string' && endValue.includes(',')) {
+    return <div className="text-2xl font-bold">{endValue}</div>;
+  }
+  
+  return <div className="text-2xl font-bold">{count}</div>;
 }
 
 export default function StatusCard({
@@ -26,6 +68,7 @@ export default function StatusCard({
   icon,
   trend,
   className,
+  animated = false,
 }: StatusCardProps) {
   return (
     <Card className={cn("overflow-hidden", className)}>
@@ -36,7 +79,11 @@ export default function StatusCard({
         {icon && <div className="text-muted-foreground">{icon}</div>}
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold">{value}</div>
+        {animated ? (
+          <AnimatedCounter endValue={value} />
+        ) : (
+          <div className="text-2xl font-bold">{value}</div>
+        )}
         {description && (
           <p className="text-xs text-muted-foreground mt-1">{description}</p>
         )}
