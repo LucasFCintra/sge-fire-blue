@@ -100,6 +100,72 @@ export type Database = {
           },
         ]
       }
+      logs: {
+        Row: {
+          acao: string
+          id: string
+          ip: string | null
+          timestamp: string
+          usuario_id: string | null
+        }
+        Insert: {
+          acao: string
+          id?: string
+          ip?: string | null
+          timestamp?: string
+          usuario_id?: string | null
+        }
+        Update: {
+          acao?: string
+          id?: string
+          ip?: string | null
+          timestamp?: string
+          usuario_id?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          nome: string | null
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id: string
+          nome?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          nome?: string | null
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

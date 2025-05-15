@@ -29,6 +29,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // Configure a escuta para alterações de autenticação
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        console.log('Auth state changed:', event, session?.user?.email);
         setSession(session);
         setUser(session?.user ?? null);
 
@@ -52,6 +53,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     // Verificar sessão atual no carregamento inicial
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('Initial session check:', session?.user?.email);
       setSession(session);
       setUser(session?.user ?? null);
       
@@ -70,9 +72,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Buscar perfil do usuário
   const fetchProfile = async (userId: string) => {
     try {
-      // Cast the entire supabase client to any to bypass TypeScript type checking
-      const supabaseAny = supabase as any;
-      const { data, error } = await supabaseAny
+      console.log('Fetching profile for user:', userId);
+      const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
@@ -81,6 +82,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (error) {
         console.error('Erro ao buscar perfil:', error);
       } else {
+        console.log('Profile fetched:', data);
         setProfile(data);
       }
     } catch (error) {
@@ -91,9 +93,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Registrar ações do usuário
   const registerUserAction = async (acao: string, userId?: string) => {
     try {
-      // Cast the entire supabase client to any to bypass TypeScript type checking
-      const supabaseAny = supabase as any;
-      const { error } = await supabaseAny.from('logs').insert({
+      console.log('Registrando ação:', acao, 'para usuário:', userId || user?.id);
+      const { error } = await supabase.from('logs').insert({
         usuario_id: userId || user?.id,
         acao,
         ip: 'cliente-web'
@@ -110,7 +111,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Login
   const signIn = async (email: string, password: string) => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      console.log('Attempting sign in for:', email);
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
       });
@@ -121,6 +123,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           title: "Login realizado com sucesso!",
           description: "Bem-vindo ao sistema.",
         });
+        console.log('Sign in successful:', data.user?.email);
+      } else {
+        console.error('Sign in error:', error);
       }
 
       return { error };
@@ -133,6 +138,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Cadastro
   const signUp = async (email: string, password: string, nome: string) => {
     try {
+      console.log('Attempting sign up for:', email);
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -144,30 +150,26 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       });
 
       if (!error && data.user) {
-        // Criar perfil do usuário
-        // Cast the entire supabase client to any to bypass TypeScript type checking
-        const supabaseAny = supabase as any;
-        const { error: profileError } = await supabaseAny.from('profiles').insert({
-          id: data.user.id,
-          nome,
-          email
-        });
-
+        // O perfil do usuário será criado automaticamente pelo trigger no Supabase
+        
         // Definir role padrão
-        await supabaseAny.from('user_roles').insert({
+        const { error: roleError } = await supabase.from('user_roles').insert({
           user_id: data.user.id,
           role: 'operador'
         });
 
-        if (profileError) {
-          console.error('Erro ao criar perfil:', profileError);
+        if (roleError) {
+          console.error('Erro ao criar role:', roleError);
         } else {
           toast({
             title: "Cadastro realizado com sucesso!",
             description: "Faça login para acessar o sistema."
           });
+          console.log('Sign up and role assignment successful');
           navigate('/login');
         }
+      } else {
+        console.error('Sign up error:', error);
       }
 
       return { error };
@@ -187,6 +189,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Reset de senha
   const resetPassword = async (email: string) => {
     try {
+      console.log('Requesting password reset for:', email);
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/redefinir-senha`
       });
@@ -196,6 +199,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           title: "E-mail enviado com sucesso!",
           description: "Verifique sua caixa de entrada para redefinir sua senha."
         });
+        console.log('Password reset email sent');
+      } else {
+        console.error('Password reset error:', error);
       }
 
       return { error };
