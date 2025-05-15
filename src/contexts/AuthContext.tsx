@@ -1,9 +1,8 @@
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect } from "react";
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
-import { toast } from "@/hooks/use-toast";
+import { useAuthentication } from "@/hooks/useAuthentication";
 
 type AuthContextType = {
   user: User | null;
@@ -19,46 +18,39 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [profile, setProfile] = useState<any | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const navigate = useNavigate();
+  const { 
+    user, setUser, 
+    session, setSession, 
+    profile, loading, setLoading,
+    signIn, signUp, signOut, resetPassword,
+    fetchProfile
+  } = useAuthentication();
 
   useEffect(() => {
-    // Configure a escuta para alterações de autenticação
+    // Configurar a escuta para alterações de autenticação
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        console.log('Auth state changed:', event, session?.user?.email);
-        setSession(session);
-        setUser(session?.user ?? null);
+      (event, currentSession) => {
+        console.log('Auth state changed:', event, currentSession?.user?.email);
+        setSession(currentSession);
+        setUser(currentSession?.user ?? null);
 
         // Se o usuário fez login, buscar perfil
-        if (session?.user) {
+        if (currentSession?.user) {
           setTimeout(() => {
-            fetchProfile(session.user.id);
+            fetchProfile(currentSession.user.id);
           }, 0);
-        } else {
-          setProfile(null);
-        }
-
-        // Registrar evento de login/logout
-        if (event === 'SIGNED_IN') {
-          registerUserAction('login', session?.user?.id);
-        } else if (event === 'SIGNED_OUT') {
-          registerUserAction('logout');
         }
       }
     );
 
     // Verificar sessão atual no carregamento inicial
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('Initial session check:', session?.user?.email);
-      setSession(session);
-      setUser(session?.user ?? null);
+    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
+      console.log('Initial session check:', currentSession?.user?.email);
+      setSession(currentSession);
+      setUser(currentSession?.user ?? null);
       
-      if (session?.user) {
-        fetchProfile(session.user.id);
+      if (currentSession?.user) {
+        fetchProfile(currentSession.user.id);
       }
       
       setLoading(false);
@@ -68,148 +60,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       subscription.unsubscribe();
     };
   }, []);
-
-  // Buscar perfil do usuário
-  const fetchProfile = async (userId: string) => {
-    try {
-      console.log('Fetching profile for user:', userId);
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
-
-      if (error) {
-        console.error('Erro ao buscar perfil:', error);
-      } else {
-        console.log('Profile fetched:', data);
-        setProfile(data);
-      }
-    } catch (error) {
-      console.error('Erro ao buscar perfil:', error);
-    }
-  };
-
-  // Registrar ações do usuário
-  const registerUserAction = async (acao: string, userId?: string) => {
-    try {
-      console.log('Registrando ação:', acao, 'para usuário:', userId || user?.id);
-      const { error } = await supabase.from('logs').insert({
-        usuario_id: userId || user?.id,
-        acao,
-        ip: 'cliente-web'
-      });
-
-      if (error) {
-        console.error('Erro ao registrar ação:', error);
-      }
-    } catch (error) {
-      console.error('Erro ao registrar ação:', error);
-    }
-  };
-
-  // Login
-  const signIn = async (email: string, password: string) => {
-    try {
-      console.log('Attempting sign in for:', email);
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      });
-
-      if (!error) {
-        navigate('/');
-        toast({
-          title: "Login realizado com sucesso!",
-          description: "Bem-vindo ao sistema.",
-        });
-        console.log('Sign in successful:', data.user?.email);
-      } else {
-        console.error('Sign in error:', error);
-      }
-
-      return { error };
-    } catch (error) {
-      console.error('Erro no login:', error);
-      return { error };
-    }
-  };
-
-  // Cadastro
-  const signUp = async (email: string, password: string, nome: string) => {
-    try {
-      console.log('Attempting sign up for:', email);
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            nome
-          }
-        }
-      });
-
-      if (!error && data.user) {
-        // O perfil do usuário será criado automaticamente pelo trigger no Supabase
-        
-        // Definir role padrão
-        const { error: roleError } = await supabase.from('user_roles').insert({
-          user_id: data.user.id,
-          role: 'operador'
-        });
-
-        if (roleError) {
-          console.error('Erro ao criar role:', roleError);
-        } else {
-          toast({
-            title: "Cadastro realizado com sucesso!",
-            description: "Faça login para acessar o sistema."
-          });
-          console.log('Sign up and role assignment successful');
-          navigate('/login');
-        }
-      } else {
-        console.error('Sign up error:', error);
-      }
-
-      return { error };
-    } catch (error) {
-      console.error('Erro no cadastro:', error);
-      return { error };
-    }
-  };
-
-  // Logout
-  const signOut = async () => {
-    await registerUserAction('logout');
-    await supabase.auth.signOut();
-    navigate('/login');
-  };
-
-  // Reset de senha
-  const resetPassword = async (email: string) => {
-    try {
-      console.log('Requesting password reset for:', email);
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/redefinir-senha`
-      });
-      
-      if (!error) {
-        toast({
-          title: "E-mail enviado com sucesso!",
-          description: "Verifique sua caixa de entrada para redefinir sua senha."
-        });
-        console.log('Password reset email sent');
-      } else {
-        console.error('Password reset error:', error);
-      }
-
-      return { error };
-    } catch (error) {
-      console.error('Erro ao solicitar redefinição de senha:', error);
-      return { error };
-    }
-  };
 
   return (
     <AuthContext.Provider value={{
